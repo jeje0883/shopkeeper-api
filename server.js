@@ -1,11 +1,15 @@
 // server.js
 import { app } from './index.js';
+import dotenv from 'dotenv';
 
-// Retrieve and validate the server port
-const { SERVER_PORT = 5000 } = process.env;
+// Load environment variables
+dotenv.config();
+
+const { SERVER_PORT = '4000' } = process.env;
 const port = parseInt(SERVER_PORT, 10);
 
-if (isNaN(port)) {
+// Validate SERVER_PORT
+if (isNaN(port) || port < 0 || port > 65535) {
     console.error(`Invalid SERVER_PORT: ${SERVER_PORT}`);
     process.exit(1);
 }
