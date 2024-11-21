@@ -1,11 +1,10 @@
-// app.js
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import { config } from 'dotenv';
 
 // Load environment variables from .env file
-config(); 
+config();
 
 const { MONGODB_URL, ALLOWED_CLIENT } = process.env;
 
@@ -28,7 +27,6 @@ if (ALLOWED_CLIENT) {
 // CORS configuration
 const corsOptions = {
     origin: (origin, callback) => {
-        // console.log(`Incoming request origin: ${origin}`);
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) {
@@ -37,34 +35,33 @@ const corsOptions = {
             callback(new Error('Not allowed by CORS'), false);
         }
     },
-    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+    optionsSuccessStatus: 200, // Some legacy browsers choke on 204
 };
 
-// Connect to MongoDB
-mongoose.connect(MONGODB_URL)
-.then(() => console.log('Now connected to MongoDB Atlas Server'))
-.catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-});
+// MongoDB Connection
+mongoose
+    .connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Connected to MongoDB Atlas Server'))
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    });
 
 const app = express();
 
-// Apply CORS middleware with the specified options
+// Apply Middleware
 app.use(cors(corsOptions));
-
-// Apply JSON and URL-encoded middlewares correctly by invoking them
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Example route
+// Example Route
 app.get('/', (req, res) => {
     res.status(200).send('Server is up and running!');
 });
 
-import userRoutes from './routes/userRoutes';
-
+// User Routes
+import userRoutes from './routes/userRoute.js';
 app.use('/api/v1/users', userRoutes);
 
-
+// Export the app and mongoose connection
 export { app, mongoose };
